@@ -4,43 +4,38 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Loader2, Check } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { useCart } from '@/context/cart-context'; // Import useCart
 import type { Product } from '@/lib/data';
 import { cn } from '@/lib/utils';
 
 interface AddToCartButtonProps extends React.ComponentProps<typeof Button> {
   product: Product;
   showText?: boolean;
+  quantity?: number; // Allow specifying quantity
 }
 
-export function AddToCartButton({ product, showText = true, className, size = "lg", ...props }: AddToCartButtonProps) {
+export function AddToCartButton({ product, showText = true, className, size = "lg", quantity = 1, ...props }: AddToCartButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const { toast } = useToast();
+  const { addToCart } = useCart(); // Use the addToCart function from context
 
   const handleAddToCart = async () => {
     setIsLoading(true);
     setIsAdded(false);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate a brief delay if needed (optional)
+    await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay
 
-    // In a real app, you'd dispatch an action to add to cart state (e.g., Redux, Zustand)
-    console.log(`Added ${product.name} to cart`);
+    // Add item to cart using context function
+    addToCart(product, quantity);
 
     setIsLoading(false);
     setIsAdded(true);
 
-    toast({
-      title: "Item Added to Cart",
-      description: `${product.name} has been added to your cart.`,
-      // action: <ToastAction altText="View Cart">View Cart</ToastAction>, // Add later if needed
-    });
-
-    // Reset the 'Added' state after a short delay
+    // Reset the 'Added' state after a short delay for visual feedback
     setTimeout(() => {
       setIsAdded(false);
-    }, 2000);
+    }, 1500); // Shortened duration for feedback
   };
 
   const isDisabled = product.stockStatus === 'Out of Stock' || isLoading || isAdded;

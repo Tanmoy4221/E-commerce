@@ -1,13 +1,14 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { AspectRatio } from '@/components/ui/aspect-ratio'; // Assuming AspectRatio component exists
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { AddToCartButton } from './add-to-cart-button'; // Import AddToCartButton
+import { WishlistButton } from './wishlist-button'; // Import WishlistButton
 
 interface ProductCardProps {
   product: Product;
@@ -35,8 +36,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
               loading="lazy" // Enable lazy loading
             />
          </AspectRatio>
-        {/* Badges & Wishlist */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
           {product.isOnSale && discountPercent && (
             <Badge variant="destructive">{discountPercent}% OFF</Badge>
           )}
@@ -47,14 +48,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
              <Badge variant="default">Featured</Badge>
            )}
         </div>
-         <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 z-20 h-8 w-8 rounded-full bg-background/70 hover:bg-background text-muted-foreground hover:text-primary transition-all"
-            aria-label="Add to wishlist"
-          >
-            <Heart className="h-4 w-4" />
-         </Button>
+         {/* Wishlist Button */}
+          <div className="absolute top-2 right-2 z-20">
+             <WishlistButton
+               product={product}
+               showText={false}
+               size="icon"
+               variant="secondary" // Use secondary to stand out on image
+               className="h-8 w-8 rounded-full bg-background/70 hover:bg-background text-muted-foreground hover:text-red-600 dark:hover:text-red-500"
+             />
+          </div>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
          <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
@@ -83,14 +86,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
          </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button
-          variant="outline"
-          className="w-full transition-default hover:bg-primary hover:text-primary-foreground"
-          disabled={product.stockStatus === 'Out of Stock'}
-        >
-           <ShoppingCart className="mr-2 h-4 w-4" />
-          {product.stockStatus === 'Out of Stock' ? 'Out of Stock' : 'Add to Cart'}
-        </Button>
+         {/* Replace direct button with AddToCartButton component */}
+         <AddToCartButton
+            product={product}
+            showText={true}
+            size="default" // Or "sm" if preferred
+            variant="outline"
+            className="w-full transition-default hover:bg-primary hover:text-primary-foreground"
+         />
       </CardFooter>
     </Card>
   );

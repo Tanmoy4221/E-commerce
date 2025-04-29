@@ -16,11 +16,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useCart } from '@/context/cart-context'; // Import useCart
+import { useWishlist } from '@/context/wishlist-context'; // Import useWishlist
+import { useAuth } from '@/context/auth-context'; // Import useAuth
+import { Badge } from '@/components/ui/badge'; // Import Badge
 // import { useTheme } from "next-themes"; // Add next-themes if needed for dark mode
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { cartCount } = useCart(); // Get cart count
+  const { wishlistCount } = useWishlist(); // Get wishlist count
+  const { isLoggedIn, user, logout } = useAuth(); // Get auth state and functions
   // const { theme, setTheme } = useTheme(); // Uncomment for dark mode
 
   const handleSearch = (e: React.FormEvent) => {
@@ -32,8 +39,11 @@ export function Header() {
     }
   };
 
-   // Mock user state
-  const isLoggedIn = false; // Change to true to see logged-in state
+  const handleLogout = () => {
+     logout();
+     // Optionally close mobile menu if open
+     setIsMobileMenuOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
@@ -47,21 +57,26 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-full max-w-xs bg-background p-6">
+             <div className="flex justify-between items-center mb-6">
+                 <Link href="/" className="text-lg font-semibold text-primary" onClick={() => setIsMobileMenuOpen(false)}>ShopWave</Link>
+                 <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                   <X className="h-6 w-6" />
+                   <span className="sr-only">Close menu</span>
+                 </Button>
+             </div>
             <nav className="flex flex-col space-y-4">
-              <SheetClose asChild>
-                <Link href="/" className="text-lg font-semibold text-primary">ShopWave</Link>
-              </SheetClose>
               <SheetClose asChild><Link href="/" className="hover:text-primary transition-colors">Home</Link></SheetClose>
               <SheetClose asChild><Link href="/shop" className="hover:text-primary transition-colors">Shop</Link></SheetClose>
-              <SheetClose asChild><Link href="/categories" className="hover:text-primary transition-colors">Categories</Link></SheetClose>
-              <SheetClose asChild><Link href="/deals" className="hover:text-primary transition-colors">Deals</Link></SheetClose>
+              {/* <SheetClose asChild><Link href="/categories" className="hover:text-primary transition-colors">Categories</Link></SheetClose> */}
+              {/* <SheetClose asChild><Link href="/deals" className="hover:text-primary transition-colors">Deals</Link></SheetClose> */}
                <DropdownMenuSeparator />
                {isLoggedIn ? (
                  <>
                   <SheetClose asChild><Link href="/profile" className="hover:text-primary transition-colors">My Account</Link></SheetClose>
                   <SheetClose asChild><Link href="/profile/orders" className="hover:text-primary transition-colors">My Orders</Link></SheetClose>
-                  <SheetClose asChild><Link href="/wishlist" className="hover:text-primary transition-colors">Wishlist</Link></SheetClose>
-                  <Button variant="outline" className="w-full">Logout</Button>
+                  <SheetClose asChild><Link href="/wishlist" className="hover:text-primary transition-colors">Wishlist ({wishlistCount})</Link></SheetClose>
+                  <SheetClose asChild><Link href="/cart" className="hover:text-primary transition-colors">Cart ({cartCount})</Link></SheetClose>
+                  <Button variant="outline" className="w-full mt-4" onClick={handleLogout}>Logout</Button>
                  </>
                ) : (
                  <>
@@ -70,10 +85,7 @@ export function Header() {
                  </>
                )}
             </nav>
-            <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => setIsMobileMenuOpen(false)}>
-              <X className="h-6 w-6" />
-               <span className="sr-only">Close menu</span>
-            </Button>
+
           </SheetContent>
         </Sheet>
 
@@ -105,7 +117,7 @@ export function Header() {
         </div>
 
         {/* Icons */}
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex items-center space-x-1 md:space-x-2">
           {/* Dark Mode Toggle - Uncomment if using next-themes */}
           {/*
           <Button
@@ -119,20 +131,27 @@ export function Header() {
           </Button>
           */}
 
-          <Link href="/wishlist">
-            <Button variant="ghost" size="icon" aria-label="Wishlist">
+          <Button asChild variant="ghost" size="icon" aria-label="Wishlist" className="relative">
+            <Link href="/wishlist">
               <Heart className="h-5 w-5" />
-              {/* Optional: Add badge for wishlist count */}
-               {/* <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-primary ring-2 ring-background"></span> */}
-            </Button>
-          </Link>
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" aria-label="Cart">
-              <ShoppingCart className="h-5 w-5" />
-              {/* Optional: Add badge for cart count */}
-              {/* <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">3</span> */}
-            </Button>
-          </Link>
+              {wishlistCount > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs rounded-full">
+                  {wishlistCount}
+                </Badge>
+              )}
+            </Link>
+          </Button>
+           <Button asChild variant="ghost" size="icon" aria-label="Cart" className="relative">
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                   <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs rounded-full">
+                     {cartCount}
+                   </Badge>
+                )}
+              </Link>
+           </Button>
+
 
            {/* User Profile Dropdown/Link */}
           {isLoggedIn ? (
@@ -140,32 +159,39 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="https://picsum.photos/seed/avatar/100/100" alt="User Avatar" />
-                      <AvatarFallback>U</AvatarFallback>
+                      {/* In real app use user.avatarUrl */}
+                      <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${user?.name ?? 'U'}`} alt={user?.name ?? 'User Avatar'} />
+                      <AvatarFallback>{user?.name ? user.name[0].toUpperCase() : 'U'}</AvatarFallback>
                     </Avatar>
                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                   <DropdownMenuLabel>
+                      <p className="font-medium">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                   </DropdownMenuLabel>
                    <DropdownMenuSeparator />
                    <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
                    <DropdownMenuItem asChild><Link href="/profile/orders">Orders</Link></DropdownMenuItem>
                    <DropdownMenuItem asChild><Link href="/wishlist">Wishlist</Link></DropdownMenuItem>
+                   <DropdownMenuItem asChild><Link href="/cart">Cart</Link></DropdownMenuItem>
                    <DropdownMenuSeparator />
-                   <DropdownMenuItem>Logout</DropdownMenuItem>
+                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                     Logout
+                   </DropdownMenuItem>
                 </DropdownMenuContent>
              </DropdownMenu>
            ) : (
-             <Link href="/login">
-                <Button variant="ghost" size="icon" aria-label="Login/Register">
+             <Button asChild variant="ghost" size="icon" aria-label="Login/Register">
+                <Link href="/login">
                   <User className="h-5 w-5" />
-                </Button>
-             </Link>
+                </Link>
+             </Button>
            )}
         </div>
       </div>
        {/* Search Bar - Below header on mobile */}
-       <div className="md:hidden px-4 pb-3 border-b">
+       <div className="md:hidden px-4 pb-3 border-t">
            <form onSubmit={handleSearch} className="w-full relative">
              <Input
                type="search"

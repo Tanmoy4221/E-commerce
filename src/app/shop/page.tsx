@@ -3,23 +3,20 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { ProductCard } from '@/components/product-card';
 import { products, categories, Product, Category } from '@/lib/data';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Filter, ListRestart } from 'lucide-react';
-import { ShopFilters } from '@/components/shop-filters'; // Create this component
-import { ShopPagination } from '@/components/shop-pagination'; // Create this component
+import { Filter } from 'lucide-react';
+import { ShopFilters } from '@/components/shop-filters';
+import { ShopPagination } from '@/components/shop-pagination';
+import { ShopSortDropdown } from '@/components/shop-sort-dropdown'; // Import the new Sort component
 
 interface ShopPageProps {
   searchParams: {
     page?: string;
     sort?: string;
     category?: string;
-    brand?: string[]; // Allow multiple brands
+    brand?: string | string[]; // Can be single or multiple
     minPrice?: string;
     maxPrice?: string;
     rating?: string;
@@ -29,11 +26,20 @@ interface ShopPageProps {
 
 const ITEMS_PER_PAGE = 12;
 
+// Function to safely get brands as an array
+const getBrandsArray = (brandParam: string | string[] | undefined): string[] => {
+  if (!brandParam) return [];
+  if (Array.isArray(brandParam)) return brandParam;
+  return [brandParam];
+};
+
+
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const currentPage = Number(searchParams.page) || 1;
   const sortBy = searchParams.sort || 'featured'; // default sort
   const selectedCategory = searchParams.category;
-  const selectedBrands = Array.isArray(searchParams.brand) ? searchParams.brand : (searchParams.brand ? [searchParams.brand] : []);
+  // Use the helper function to always get an array
+   const selectedBrands = getBrandsArray(searchParams.brand);
   const minPrice = Number(searchParams.minPrice) || 0;
   const maxPrice = Number(searchParams.maxPrice) || 10000; // Adjust max default if needed
   const minRating = Number(searchParams.rating) || 0;
@@ -90,12 +96,20 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
        break;
     case 'newest': // Assuming IDs are somewhat sequential or have a date added field later
       // Simple reverse for now, replace with date logic if available
-       filteredProducts.reverse();
+       filteredProducts.reverse(); // Placeholder - needs date field for real implementation
        break;
     case 'featured':
     default:
-       // Keep original order or implement featured logic (e.g., based on isFeatured flag)
-        filteredProducts.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+       // Sort by featured first, then potentially by another metric like rating or ID
+        filteredProducts.sort((a, b) => {
+            const featuredA = a.isFeatured ? 1 : 0;
+            const featuredB = b.isFeatured ? 1 : 0;
+            if (featuredB !== featuredA) {
+                return featuredB - featuredA; // Featured items first
+            }
+            // Optional: Add secondary sort criteria (e.g., rating) if needed
+             return b.rating - a.rating;
+        });
        break;
   }
 
@@ -115,7 +129,17 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       <Header />
       <main className="container mx-auto px-4 md:px-6 py-8">
         {/* Optional: Breadcrumbs */}
-        {/* <div className="text-sm text-muted-foreground mb-4">Home / Shop {selectedCategory && `/ ${selectedCategory}`}</div> */}
+        <div className="text-sm text-muted-foreground mb-4">
+            <Link href="/" className="hover:text-primary">Home</Link>
+            <span className="mx-1">/</span>
+             <Link href="/shop" className={`hover:text-primary ${!selectedCategory ? 'font-medium text-foreground' : ''}`}>Shop</Link>
+             {selectedCategory && (
+                <>
+                 <span className="mx-1">/</span>
+                 <span className="font-medium text-foreground capitalize">{selectedCategory.replace('-', ' ')}</span>
+                </>
+             )}
+        </div>
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Filters Sidebar (Desktop) */}
@@ -123,7 +147,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
              <ShopFilters
                 categories={categories}
                 brands={allBrands}
-                currentParams={searchParams}
+                 // Pass the original searchParams object
+                 currentParams={searchParams}
              />
           </aside>
 
@@ -139,6 +164,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                      </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="w-full max-w-xs overflow-y-auto p-4">
+                      {/* Pass the original searchParams object */}
                      <ShopFilters
                         categories={categories}
                         brands={allBrands}
@@ -148,25 +174,20 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                   </SheetContent>
                </Sheet>
 
-                <p className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} results
-                </p>
+                 {totalItems > 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} results
+                      {searchQuery && <span> for "{searchQuery}"</span>}
+                    </p>
+                 ) : (
+                    <p className="text-sm text-muted-foreground">
+                       {searchQuery ? `No results found for "${searchQuery}"` : 'No products found'}
+                    </p>
+                 )}
 
-               {/* Sort Dropdown */}
-               <Select defaultValue={sortBy}>
-                 <SelectTrigger className="w-[180px]">
-                   <SelectValue placeholder="Sort by" />
-                 </SelectTrigger>
-                 <SelectContent>
-                    <SelectItem value="featured">Featured</SelectItem>
-                    <SelectItem value="newest">Newest</SelectItem>
-                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                    <SelectItem value="rating-desc">Avg. Customer Rating</SelectItem>
-                    <SelectItem value="name-asc">Name: A to Z</SelectItem>
-                    <SelectItem value="name-desc">Name: Z to A</SelectItem>
-                 </SelectContent>
-               </Select>
+
+               {/* Sort Dropdown - Use the new component */}
+               <ShopSortDropdown />
             </div>
 
             {/* Products Grid */}
@@ -177,11 +198,11 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                 <p>No products found matching your criteria.</p>
+              <div className="text-center py-16 text-muted-foreground border rounded-lg bg-card">
+                 <p className="text-xl mb-4">No products found matching your criteria.</p>
                  {/* Optionally add a button to clear filters */}
                   <Button variant="link" asChild className="mt-4">
-                     <a href="/shop">Clear Filters</a>
+                     <Link href="/shop">Clear Filters & Search</Link>
                   </Button>
               </div>
             )}

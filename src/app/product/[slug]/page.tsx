@@ -1,7 +1,7 @@
 
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Star, ShoppingCart, Heart, CheckCircle, Truck, RotateCw } from 'lucide-react';
+import { Star, CheckCircle, Truck, RotateCw } from 'lucide-react';
 import { getProductBySlug, getRelatedProducts, getReviewsForProduct, Product, Review } from '@/lib/data';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
@@ -12,24 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ProductCard } from '@/components/product-card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { ProductImageGallery } from '@/components/product-image-gallery'; // Create this component
-import { AddToCartButton } from '@/components/add-to-cart-button'; // Create this component
-import { WishlistButton } from '@/components/wishlist-button'; // Create this component
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // For variants
+import { ProductImageGallery } from '@/components/product-image-gallery';
+import { AddToCartButton } from '@/components/add-to-cart-button'; // Import AddToCartButton
+import { WishlistButton } from '@/components/wishlist-button'; // Import WishlistButton
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProductPageProps {
   params: {
     slug: string;
   };
 }
-
-// Optional: Generate static paths for better performance
-// export async function generateStaticParams() {
-//   const products = await getAllProducts(); // Assuming you have a function to get all products
-//   return products.map((product) => ({
-//     slug: product.slug,
-//   }));
-// }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const product = getProductBySlug(params.slug);
@@ -43,6 +35,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const displayPrice = product.isOnSale ? product.price : product.price;
   const originalPrice = product.isOnSale ? product.originalPrice : null;
+
+  // TODO: Add state management for selected variant and quantity
+  const selectedQuantity = 1; // Placeholder
 
   return (
     <>
@@ -99,7 +94,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <Separator />
 
-             {/* Variants (if applicable) */}
+             {/* Variants (if applicable) - Placeholder, no state management yet */}
              <div className="space-y-4">
                 {product.variants?.colors && product.variants.colors.length > 0 && (
                     <div className="flex items-center gap-3">
@@ -131,13 +126,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                        </Select>
                     </div>
                  )}
+                 {/* TODO: Add Quantity Selector */}
              </div>
 
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Use context-aware components */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <AddToCartButton product={product} />
-               <WishlistButton product={product} />
+              <AddToCartButton product={product} quantity={selectedQuantity} size="lg" />
+              <WishlistButton product={product} size="lg" />
             </div>
 
              <Separator />
@@ -145,7 +141,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
              {/* Short Description / Highlights */}
              <div className="text-sm text-muted-foreground space-y-2">
                 <p>{product.description.substring(0, 150)}{product.description.length > 150 ? '...' : ''}</p>
-                {/* Add some key features if available */}
+                 {/* TODO: Add key features if available in product data */}
+                 <ul className="list-disc list-inside space-y-1">
+                    <li><span className="flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Fast Shipping Available</span></li>
+                    <li><span className="flex items-center gap-2"><RotateCw className="h-4 w-4 text-primary" /> 30-Day Return Policy</span></li>
+                 </ul>
              </div>
 
 
@@ -162,20 +162,31 @@ export default async function ProductPage({ params }: ProductPageProps) {
                    <TabsTrigger value="reviews" id="reviews-tab">Reviews ({reviews.length})</TabsTrigger>
                    <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
                  </TabsList>
-                 <TabsContent value="description" className="prose max-w-none dark:prose-invert prose-sm">
+                 <TabsContent value="description" className="prose max-w-none dark:prose-invert prose-sm pt-4">
+                    {/* Use dangerouslySetInnerHTML ONLY IF product.description is guaranteed to be safe HTML or plain text */}
+                    {/* For safety, treat as plain text by default */}
                    <p>{product.description}</p>
-                   {/* Add more detailed description, specs etc. */}
+                    {/* Add more detailed description, specs etc. */}
                  </TabsContent>
                  <TabsContent value="reviews">
                     <ProductReviews reviews={reviews} productId={product.id} />
                  </TabsContent>
-                 <TabsContent value="shipping" className="prose max-w-none dark:prose-invert prose-sm">
+                 <TabsContent value="shipping" className="prose max-w-none dark:prose-invert prose-sm pt-4">
                    <h4>Shipping Information</h4>
-                   <p>Standard shipping typically takes 3-5 business days. Expedited options available at checkout.</p>
-                   <p>We ship to all locations within the country.</p>
-                    <h4>Return Policy</h4>
-                    <p>We offer a 30-day return policy on most items. Items must be in original condition with tags attached.</p>
-                    <p>To initiate a return, please visit our returns center or contact customer support.</p>
+                   <ul className='list-disc pl-5'>
+                    <li>Standard shipping: 3-5 business days.</li>
+                    <li>Expedited shipping: 1-2 business days (available at checkout).</li>
+                    <li>We ship to all locations within the country.</li>
+                    <li>Tracking information provided via email upon shipment.</li>
+                   </ul>
+
+                    <h4 className='mt-4'>Return Policy</h4>
+                    <ul className='list-disc pl-5'>
+                        <li>Easy 30-day return policy on most items.</li>
+                        <li>Items must be in original, unused condition with tags attached.</li>
+                        <li>Some exclusions apply (e.g., final sale items).</li>
+                        <li>Visit our <Link href="/returns" className="text-primary hover:underline">Returns Center</Link> or contact customer support to initiate a return.</li>
+                   </ul>
                  </TabsContent>
                </Tabs>
            </div>
@@ -185,7 +196,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <AccordionItem value="item-1">
                     <AccordionTrigger>Description</AccordionTrigger>
                     <AccordionContent className="prose max-w-none dark:prose-invert prose-sm">
-                      <p>{product.description}</p>
+                       <p>{product.description}</p>
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="item-2">
@@ -198,9 +209,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     <AccordionTrigger>Shipping & Returns</AccordionTrigger>
                     <AccordionContent className="prose max-w-none dark:prose-invert prose-sm">
                        <h4>Shipping Information</h4>
-                       <p>Standard shipping typically takes 3-5 business days. Expedited options available at checkout.</p>
-                       <h4>Return Policy</h4>
-                       <p>We offer a 30-day return policy on most items. Items must be in original condition.</p>
+                         <ul className='list-disc pl-5'>
+                            <li>Standard shipping: 3-5 business days.</li>
+                            <li>Expedited shipping available.</li>
+                         </ul>
+                       <h4 className='mt-4'>Return Policy</h4>
+                         <ul className='list-disc pl-5'>
+                            <li>Easy 30-day return policy.</li>
+                            <li>Items must be in original condition.</li>
+                         </ul>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -214,19 +231,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
              <Carousel
                 opts={{
                   align: "start",
-                  loop: true,
+                  loop: false, // Loop can be jerky with few items, disable if < slidesPerView * 2
                 }}
-                 className="w-full"
+                 className="w-full -ml-1" // Offset margin for container padding
               >
                <CarouselContent className="-ml-4">
                   {relatedProducts.map((relatedProduct) => (
-                    <CarouselItem key={relatedProduct.id} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <CarouselItem key={relatedProduct.id} className="pl-4 basis-1/2 sm:basis-1/3 lg:basis-1/4">
                       <ProductCard product={relatedProduct} />
                     </CarouselItem>
                   ))}
                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex" />
-                <CarouselNext className="hidden md:flex" />
+                <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex" />
+                <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex" />
              </Carousel>
           </section>
         )}
@@ -241,13 +258,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
 // Component to display reviews (can be moved to its own file)
 function ProductReviews({ reviews, productId }: { reviews: Review[], productId: string }) {
+    // TODO: Add Review Form State & Submission Logic
     if (reviews.length === 0) {
-        return <p className="text-muted-foreground py-4">No reviews yet. Be the first to review!</p>;
+        return (
+            <div className="py-4 text-center border-t mt-4 pt-6">
+                <p className="text-muted-foreground mb-4">No reviews yet. Be the first to share your thoughts!</p>
+                 <Button disabled>Write a Review (Coming Soon)</Button>
+            </div>
+        );
     }
     return (
-        <div className="space-y-6 pt-4">
+        <div className="space-y-6 pt-4 border-t mt-4">
+            <h3 className="text-lg font-semibold">Customer Reviews</h3>
             {reviews.map((review) => (
-                <div key={review.id} className="border-b pb-4">
+                <div key={review.id} className="border-b pb-4 last:border-b-0">
                     <div className="flex items-center justify-between mb-1">
                        <div className="flex items-center gap-2">
                            <span className="font-semibold">{review.userName}</span>
@@ -262,11 +286,12 @@ function ProductReviews({ reviews, productId }: { reviews: Review[], productId: 
                     <p className="text-sm text-foreground">{review.comment}</p>
                 </div>
             ))}
-             {/* Add Review Form (Placeholder) */}
-             <div className="pt-4">
+             {/* TODO: Add Review Form Here */}
+             <div className="pt-6">
                 <h4 className="font-semibold mb-2">Write Your Review</h4>
-                {/* Add form fields here later */}
-                 <Button>Submit Review</Button>
+                {/* Placeholder for form fields */}
+                 <p className="text-sm text-muted-foreground mb-4">Share your experience with this product.</p>
+                 <Button disabled>Submit Review (Coming Soon)</Button>
              </div>
         </div>
     );

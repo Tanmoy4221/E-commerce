@@ -43,10 +43,13 @@ export function ShopPagination({ currentPage, totalPages }: ShopPaginationProps)
 
     if (totalPages > maxPagesToShow) {
       if (currentPage <= halfMaxPages + 1) {
+        // Show first `maxPagesToShow` pages if near the beginning
         endPage = maxPagesToShow;
       } else if (currentPage >= totalPages - halfMaxPages) {
+         // Show last `maxPagesToShow` pages if near the end
         startPage = totalPages - maxPagesToShow + 1;
       } else {
+        // Show pages around the current page
         startPage = currentPage - halfMaxPages;
         endPage = currentPage + halfMaxPages;
       }
