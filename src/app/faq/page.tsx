@@ -1,8 +1,11 @@
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+
+// Header and Footer are now handled by RootLayout
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { HelpCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button'; // Import Button
+import Link from 'next/link'; // Import Link
+
 
 const faqs = [
   {
@@ -38,7 +41,7 @@ const faqs = [
 export default function FaqPage() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex-grow">
          <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12 md:mb-16">
@@ -65,12 +68,12 @@ export default function FaqPage() {
              <div className="mt-12 text-center">
                  <p className="text-muted-foreground mb-4">Can't find the answer you're looking for?</p>
                  <Button asChild>
-                    <a href="/contact">Contact Support</a>
+                    <Link href="/contact">Contact Support</Link> {/* Changed to Link */}
                  </Button>
              </div>
          </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

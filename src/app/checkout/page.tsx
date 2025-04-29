@@ -6,8 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -94,11 +93,11 @@ export default function CheckoutPage() {
    if (isLoading) {
       return (
           <>
-             <Header />
+             {/* <Header /> */}
              <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex justify-center items-center flex-grow">
                  <Loader2 className="h-12 w-12 animate-spin text-primary" />
              </main>
-             <Footer />
+             {/* <Footer /> */}
           </>
       )
    }
@@ -107,7 +106,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-8 md:py-12 flex-grow">
         <Button variant="outline" size="sm" className="mb-6" asChild>
           <Link href="/cart"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Cart</Link>
@@ -244,7 +243,7 @@ export default function CheckoutPage() {
           </div>
         </form>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

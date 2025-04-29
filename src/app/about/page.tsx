@@ -1,13 +1,13 @@
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+
+// Header and Footer are now handled by RootLayout
 import Image from 'next/image';
 import { Building, Users, Target } from 'lucide-react';
 
 export default function AboutPage() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex-grow">
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}
@@ -76,7 +76,7 @@ export default function AboutPage() {
 
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

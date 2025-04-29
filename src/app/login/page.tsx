@@ -4,8 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,7 +50,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex justify-center items-center flex-grow">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
@@ -111,7 +110,7 @@ export default function LoginPage() {
           </CardFooter>
         </Card>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

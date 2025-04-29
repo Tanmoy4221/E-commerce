@@ -6,8 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link'; // Ensure Link is imported
 import { Star, CheckCircle, Truck, RotateCw, BrainCircuit } from 'lucide-react'; // Added BrainCircuit
 import { getProductBySlug, getRelatedProducts, getReviewsForProduct, Product, Review, products as allProducts } from '@/lib/data'; // Added allProducts
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -74,7 +73,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
@@ -318,8 +317,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         )}
 
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
-

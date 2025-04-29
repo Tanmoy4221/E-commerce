@@ -4,8 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/cart-context';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -24,7 +23,7 @@ export default function CartPage() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-8 md:py-12 flex-grow">
         <h1 className="text-3xl md:text-4xl font-bold mb-8">Shopping Cart</h1>
 
@@ -163,7 +162,7 @@ export default function CartPage() {
           </div>
         )}
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

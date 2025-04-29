@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
-import { Header } from '@/components/header'; // Header might be redundant if layout includes it
-import { Footer } from '@/components/footer'; // Footer might be redundant if layout includes it
+// Header and Footer are now handled by RootLayout
 
 export default function ProfilePage() {
   const { isLoggedIn, user } = useAuth();
@@ -40,7 +39,6 @@ export default function ProfilePage() {
    }
 
   return (
-    // Removed Header and Footer as they might be part of the main layout now
     // The container/padding is handled by SidebarInset or parent layout
     <div className="p-4 md:p-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-6">Account Overview</h1>
@@ -73,7 +71,7 @@ export default function ProfilePage() {
                          <Link href="/profile/orders">View Order History</Link>
                      </Button>
                       <Button variant="secondary" className="w-full justify-start" asChild>
-                         <Link href="/wishlist">View Wishlist</Link>
+                         <Link href="/profile/wishlist">View Wishlist</Link> {/* Updated link */}
                      </Button>
                       <Button variant="secondary" className="w-full justify-start" asChild>
                          <Link href="/profile/settings">Account Settings</Link>

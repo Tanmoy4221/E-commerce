@@ -2,8 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,7 +44,7 @@ export default function ContactPage() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex-grow">
          <div className="text-center mb-12 md:mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">Get In Touch</h1>
@@ -151,7 +150,7 @@ export default function ContactPage() {
             </div>
          </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

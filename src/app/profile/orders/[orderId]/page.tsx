@@ -6,8 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/auth-context';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -139,11 +138,11 @@ export default function OrderDetailPage() {
    if (isLoading) {
       return (
           <>
-             <Header />
+             {/* <Header /> */}
              <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex justify-center items-center flex-grow">
                  <Loader2 className="h-12 w-12 animate-spin text-primary" />
              </main>
-             <Footer />
+             {/* <Footer /> */}
           </>
       )
    }
@@ -151,14 +150,14 @@ export default function OrderDetailPage() {
    if (error) {
       return (
           <>
-             <Header />
+             {/* <Header /> */}
              <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex flex-col items-center text-center flex-grow">
                  <p className="text-destructive text-xl mb-4">{error}</p>
                  <Button variant="outline" asChild>
                     <Link href="/profile/orders"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders</Link>
                  </Button>
              </main>
-             <Footer />
+             {/* <Footer /> */}
           </>
       )
    }
@@ -167,14 +166,14 @@ export default function OrderDetailPage() {
         // Should ideally be covered by error state, but good fallback
          return (
              <>
-             <Header />
+             {/* <Header /> */}
              <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex flex-col items-center text-center flex-grow">
                  <p className="text-muted-foreground text-xl mb-4">Could not load order details.</p>
                   <Button variant="outline" asChild>
                       <Link href="/profile/orders"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders</Link>
                   </Button>
              </main>
-             <Footer />
+             {/* <Footer /> */}
              </>
          )
     }
@@ -182,8 +181,9 @@ export default function OrderDetailPage() {
   // --- Render Order Details ---
   return (
     <>
-      <Header />
-      <main className="container mx-auto px-4 md:px-6 py-8 md:py-12 flex-grow">
+      {/* <Header /> */}
+      {/* Removed container/padding, handled by ProfileLayout's SidebarInset */}
+      <main className="p-4 md:p-8 flex-grow">
         <div className="mb-6">
           <Button variant="outline" size="sm" asChild>
             <Link href="/profile/orders"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders</Link>
@@ -299,8 +299,7 @@ export default function OrderDetailPage() {
          </Card>
 
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
-

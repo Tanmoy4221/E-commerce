@@ -1,13 +1,13 @@
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+
+// Header and Footer are now handled by RootLayout
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Truck, Clock, MapPin, Globe, Package } from 'lucide-react';
 
 export default function ShippingPolicyPage() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-20 flex-grow">
         <div className="max-w-3xl mx-auto prose dark:prose-invert lg:prose-lg">
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-8 flex items-center gap-3"><Truck className="w-10 h-10" /> Shipping Policy</h1>
@@ -48,7 +48,7 @@ export default function ShippingPolicyPage() {
            <p className="mt-8 text-sm text-muted-foreground">If you have any further questions about our shipping policy, please don't hesitate to <a href="/contact" className="text-primary hover:underline">contact us</a>.</p>
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

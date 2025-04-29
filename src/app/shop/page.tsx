@@ -1,6 +1,7 @@
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+
+// Header and Footer are now handled by RootLayout
+import Link from 'next/link'; // Import Link
 import { ProductCard } from '@/components/product-card';
 import { products, categories, Product, Category } from '@/lib/data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -126,7 +127,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="container mx-auto px-4 md:px-6 py-8">
         {/* Optional: Breadcrumbs */}
         <div className="text-sm text-muted-foreground mb-4">
@@ -148,7 +149,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 categories={categories}
                 brands={allBrands}
                  // Pass the original searchParams object
-                 currentParams={searchParams}
+                 currentParams={{
+                    category: selectedCategory,
+                    brand: selectedBrands,
+                    minPrice: String(minPrice),
+                    maxPrice: String(maxPrice),
+                    rating: String(minRating),
+                 }}
              />
           </aside>
 
@@ -168,7 +175,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                      <ShopFilters
                         categories={categories}
                         brands={allBrands}
-                         currentParams={searchParams}
+                         currentParams={{
+                             category: selectedCategory,
+                             brand: selectedBrands,
+                             minPrice: String(minPrice),
+                             maxPrice: String(maxPrice),
+                             rating: String(minRating),
+                         }}
                          isMobile={true} // Pass prop to potentially adjust layout/close behaviour
                      />
                   </SheetContent>
@@ -214,7 +227,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           </div>
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

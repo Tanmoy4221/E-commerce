@@ -1,6 +1,7 @@
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+"use client"; // Add this directive
+
+// Header and Footer are now handled by RootLayout
 import { HeroCarousel } from '@/components/hero-carousel';
 import { CategoriesSection } from '@/components/categories-section';
 import { FeaturedProducts } from '@/components/featured-products';
@@ -10,7 +11,7 @@ import { motion } from 'framer-motion';
 export default function HomePage() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -41,8 +42,7 @@ export default function HomePage() {
           <FlashSale />
         </motion.div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
-

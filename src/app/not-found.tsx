@@ -1,16 +1,13 @@
 
 import Link from 'next/link';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// Header and Footer are now handled by RootLayout
 import { Button } from '@/components/ui/button';
 import { Frown } from 'lucide-react';
 
 export default function NotFound() {
   return (
     <>
-        {/* Header and Footer might not render correctly by default on Next.js not-found page, */}
-        {/* but we include them for structure. Styling might need adjustments. */}
-      <Header />
+      {/* Header and Footer are handled by RootLayout */}
       <main className="container mx-auto px-4 md:px-6 py-16 md:py-24 flex flex-col items-center justify-center text-center flex-grow">
          <Frown className="h-20 w-20 text-primary mb-6" />
         <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
@@ -27,7 +24,6 @@ export default function NotFound() {
             </Button>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

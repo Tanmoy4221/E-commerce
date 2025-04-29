@@ -41,16 +41,19 @@ PaginationItem.displayName = "PaginationItem"
 type PaginationLinkProps = {
   isActive?: boolean
 } & Pick<ButtonProps, "size"> &
-  React.ComponentProps<typeof Link> // Changed from "a" to Link
+  // Use React.AnchorHTMLAttributes<HTMLAnchorElement> for basic anchor props
+  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> &
+  // Add the href from LinkProps
+  React.ComponentProps<typeof Link>
 
 const PaginationLink = ({
   className,
   isActive,
   size = "icon",
-  href, // Ensure href is accepted
+  href, // Accept href
   ...props
 }: PaginationLinkProps) => (
-  <Link // Use Link component
+  <Link // Use Next.js Link
     aria-current={isActive ? "page" : undefined}
     className={cn(
       buttonVariants({
@@ -60,10 +63,11 @@ const PaginationLink = ({
       className
     )}
     href={href} // Pass href to Link
-    {...props}
+    {...props} // Pass remaining props like children
   />
 )
 PaginationLink.displayName = "PaginationLink"
+
 
 const PaginationPrevious = ({
   className,
