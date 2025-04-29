@@ -63,26 +63,34 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
      }
    }, [cartItems]);
 
-  const addToCart = useCallback((product: Product, quantity: number = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      if (existingItem) {
-        // Increase quantity if item already exists
-        return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        // Add new item to cart
-        return [...prevItems, { ...product, quantity }];
-      }
-    });
-     toast({
-        title: "Item Added to Cart",
-        description: `${product.name} has been added to your cart.`,
+   const addToCart = useCallback((product: Product, quantity: number = 1) => {
+     setCartItems(prevItems => {
+       const existingItemIndex = prevItems.findIndex(item => item.id === product.id);
+
+       if (existingItemIndex > -1) {
+         // Item exists, update its quantity
+         const updatedItems = [...prevItems];
+         const newQuantity = updatedItems[existingItemIndex].quantity + quantity;
+         updatedItems[existingItemIndex] = {
+           ...updatedItems[existingItemIndex],
+           quantity: newQuantity,
+         };
+          toast({
+             title: "Cart Updated",
+             description: `${product.name} quantity increased to ${newQuantity}.`,
+          });
+         return updatedItems;
+       } else {
+         // Item doesn't exist, add as new item
+          toast({
+             title: "Item Added to Cart",
+             description: `${product.name} has been added to your cart.`,
+          });
+         return [...prevItems, { ...product, quantity }];
+       }
      });
-  }, [toast]);
+   }, [toast]);
+
 
   const removeFromCart = useCallback((productId: string) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
@@ -102,6 +110,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           item.id === productId ? { ...item, quantity } : item
         )
       );
+       // Optional: Add a toast notification for quantity update
+       // toast({
+       //    title: "Quantity Updated",
+       //    description: `Quantity for item updated to ${quantity}.`,
+       // });
     }
   }, [removeFromCart]);
 

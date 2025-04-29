@@ -20,8 +20,7 @@ import { WishlistButton } from '@/components/wishlist-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProductReviews } from '@/components/product-reviews'; // Import ProductReviews component
 import { productSuggestionsFlow } from '@/ai/flows/product-suggestions-flow'; // Import the AI flow
-// Remove framer-motion import for server component usage
-// import { motion } from 'framer-motion';
+import { BuyNowButton } from '@/components/buy-now-button'; // Import BuyNowButton
 
 
 interface ProductPageProps {
@@ -165,9 +164,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Action Buttons - Use context-aware components */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <AddToCartButton product={product} quantity={selectedQuantity} size="lg" />
-              <WishlistButton product={product} size="lg" />
+              {/* Add BuyNowButton */}
+              <BuyNowButton product={product} quantity={selectedQuantity} size="lg" />
+              <AddToCartButton product={product} quantity={selectedQuantity} size="lg" variant="outline"/>
             </div>
+            <div className="pt-2">
+                {/* Wishlist Button takes full width below */}
+               <WishlistButton product={product} size="lg" variant="ghost" className="w-full justify-center text-muted-foreground hover:text-primary hover:bg-accent"/>
+            </div>
+
 
              <Separator />
 
@@ -284,9 +289,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {aiSuggestedProducts.length > 0 && (
             <section
                 className="mt-16 md:mt-20"
-                // initial={{ opacity: 0, y: 20 }} // Remove motion props
-                // animate={{ opacity: 1, y: 0 }}
-                // transition={{ duration: 0.5, delay: 0.8 }}
             >
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <BrainCircuit className="w-6 h-6 text-primary" />
