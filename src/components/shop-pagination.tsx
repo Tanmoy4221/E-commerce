@@ -1,4 +1,3 @@
-
 "use client";
 
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -115,3 +114,4 @@ export function ShopPagination({ currentPage, totalPages }: ShopPaginationProps)
     </Pagination>
   );
 }
+
