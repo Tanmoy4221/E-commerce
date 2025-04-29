@@ -21,6 +21,8 @@ import { WishlistButton } from '@/components/wishlist-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProductReviews } from '@/components/product-reviews'; // Import ProductReviews component
 import { productSuggestionsFlow } from '@/ai/flows/product-suggestions-flow'; // Import the AI flow
+import { motion } from 'framer-motion';
+
 
 interface ProductPageProps {
   params: {
@@ -280,7 +282,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* AI Product Suggestions */}
         {aiSuggestedProducts.length > 0 && (
-            <section className="mt-16 md:mt-20">
+            <motion.section
+                className="mt-16 md:mt-20"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+            >
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <BrainCircuit className="w-6 h-6 text-primary" />
                     AI Recommendations
@@ -307,7 +314,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                          </>
                      )}
                 </Carousel>
-            </section>
+            </motion.section>
         )}
 
       </main>
@@ -315,3 +322,4 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </>
   );
 }
+

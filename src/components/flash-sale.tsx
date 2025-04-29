@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { getFlashSaleProducts, Product } from '@/lib/data';
 import { ProductCard } from '@/components/product-card';
 import { Timer } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function FlashSale() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -59,7 +60,12 @@ export function FlashSale() {
   }
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-r from-primary/10 to-accent/10">
+    <motion.section
+      className="py-8 md:py-12 bg-gradient-to-r from-primary/10 to-accent/10"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.6 }}
+    >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row items-center justify-between mb-6 md:mb-8">
            <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 md:mb-0 flex items-center gap-2">
@@ -96,7 +102,7 @@ export function FlashSale() {
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 

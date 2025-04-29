@@ -1,8 +1,7 @@
-
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, ShoppingCart, Heart, User, Menu, X, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,34 +15,96 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useCart } from '@/context/cart-context'; // Import useCart
-import { useWishlist } from '@/context/wishlist-context'; // Import useWishlist
-import { useAuth } from '@/context/auth-context'; // Import useAuth
-import { Badge } from '@/components/ui/badge'; // Import Badge
-import { useTheme } from "next-themes"; // Add next-themes
+import { useCart } from '@/context/cart-context';
+import { useWishlist } from '@/context/wishlist-context';
+import { useAuth } from '@/context/auth-context';
+import { Badge } from '@/components/ui/badge';
+import { useTheme } from "next-themes";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command"
+import { useRouter } from 'next/navigation';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { categories, products } from '@/lib/data';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { cartCount } = useCart(); // Get cart count
-  const { wishlistCount } = useWishlist(); // Get wishlist count
-  const { isLoggedIn, user, logout } = useAuth(); // Get auth state and functions
-  const { theme, setTheme } = useTheme(); // Use theme hook
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
+  const { isLoggedIn, user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const router = useRouter();
+  const searchInputRef = useRef<HTMLInputElement>(null); // Ref for the search input
+
+
+  const [suggestions, setSuggestions] = useState<any[]>([]); // Use 'any' or define a type for suggestions
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  useEffect(() => {
+      const fetchSuggestions = async () => {
+          if (!searchTerm) {
+              setSuggestions([]);
+              return;
+          }
+
+          setIsLoading(true);
+          // Simulate fetching suggestions from an API or data source
+          await new Promise(resolve => setTimeout(resolve, 200)); // Simulate delay
+
+          // Filter products and categories based on search term
+          const productSuggestions = products
+              .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map(p => ({ id: p.id, label: p.name, type: 'product', slug: p.slug }));
+
+          const categorySuggestions = categories
+              .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map(c => ({ id: c.id, label: c.name, type: 'category', slug: c.slug }));
+
+          const combinedSuggestions = [...productSuggestions, ...categorySuggestions];
+          setSuggestions(combinedSuggestions);
+          setIsLoading(false);
+      };
+
+      fetchSuggestions();
+  }, [searchTerm]);
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search logic or redirect to search page
     console.log('Searching for:', searchTerm);
      if (searchTerm.trim()) {
-      window.location.href = `/shop?search=${encodeURIComponent(searchTerm.trim())}`;
+      router.push(`/shop?search=${encodeURIComponent(searchTerm.trim())}`);
+      setOpenSearch(false); // Close the search popover after submitting
     }
   };
 
   const handleLogout = () => {
      logout();
-     // Optionally close mobile menu if open
      setIsMobileMenuOpen(false);
   }
+
+  const handleSuggestionClick = (suggestion: any) => {
+    setSearchTerm(''); // Clear the search term
+    setSuggestions([]); // Clear the suggestions
+    setOpenSearch(false); // Close the popover
+    if (suggestion.type === 'product') {
+      router.push(`/product/${suggestion.slug}`);
+    } else if (suggestion.type === 'category') {
+      router.push(`/shop?category=${suggestion.slug}`);
+    }
+  };
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
@@ -67,9 +128,7 @@ export function Header() {
             <nav className="flex flex-col space-y-4">
               <SheetClose asChild><Link href="/" className="hover:text-primary transition-colors">Home</Link></SheetClose>
               <SheetClose asChild><Link href="/shop" className="hover:text-primary transition-colors">Shop</Link></SheetClose>
-              {/* <SheetClose asChild><Link href="/categories" className="hover:text-primary transition-colors">Categories</Link></SheetClose> */}
-              {/* <SheetClose asChild><Link href="/deals" className="hover:text-primary transition-colors">Deals</Link></SheetClose> */}
-               <DropdownMenuSeparator />
+              <DropdownMenuSeparator />
                {isLoggedIn ? (
                  <>
                   <SheetClose asChild><Link href="/profile" className="hover:text-primary transition-colors">My Account</Link></SheetClose>
@@ -100,20 +159,47 @@ export function Header() {
 
         {/* Search Bar - Centered on Desktop */}
         <div className="flex-1 hidden md:flex justify-center px-8 lg:px-16">
-           <form onSubmit={handleSearch} className="w-full max-w-lg relative">
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="w-full pr-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
-              <Search className="h-4 w-4 text-muted-foreground" />
-               <span className="sr-only">Search</span>
-            </Button>
-            {/* Add live suggestions dropdown here if needed */}
-          </form>
+           <Popover open={openSearch} onOpenChange={setOpenSearch}>
+             <PopoverTrigger asChild>
+                 <form onSubmit={handleSearch} className="w-full relative">
+                   <Input
+                     type="search"
+                     placeholder="Search products..."
+                     className="w-full pr-10"
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     ref={searchInputRef}
+                   />
+                   <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                     <Search className="h-4 w-4 text-muted-foreground" />
+                     <span className="sr-only">Search</span>
+                   </Button>
+                 </form>
+               </PopoverTrigger>
+               <PopoverContent className="w-[400px] p-0 outline-none" align="start" side="bottom">
+                 <Command>
+                   <CommandInput placeholder="Search products..."  value={searchTerm} onValueChange={setSearchTerm} />
+                   <CommandList>
+                     <CommandEmpty>
+                       {isLoading ? (
+                         <div className="py-6 flex items-center justify-center">
+                           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
+                         </div>
+                       ) : "No results found."}
+                     </CommandEmpty>
+                     {suggestions.length > 0 && (
+                       <CommandGroup heading="Suggestions">
+                         {suggestions.map((suggestion) => (
+                           <CommandItem key={suggestion.id} onSelect={() => handleSuggestionClick(suggestion)}>
+                             {suggestion.label}
+                           </CommandItem>
+                         ))}
+                       </CommandGroup>
+                     )}
+                   </CommandList>
+                 </Command>
+               </PopoverContent>
+             </Popover>
         </div>
 
         {/* Icons */}
@@ -192,20 +278,49 @@ export function Header() {
       </div>
        {/* Search Bar - Below header on mobile */}
        <div className="md:hidden px-4 pb-3 border-t">
-           <form onSubmit={handleSearch} className="w-full relative">
-             <Input
-               type="search"
-               placeholder="Search products..."
-               className="w-full pr-10"
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-             />
-             <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
-               <Search className="h-4 w-4 text-muted-foreground" />
-               <span className="sr-only">Search</span>
-             </Button>
-           </form>
+           <Popover open={openSearch} onOpenChange={setOpenSearch}>
+             <PopoverTrigger asChild>
+               <form onSubmit={handleSearch} className="w-full relative">
+                 <Input
+                   type="search"
+                   placeholder="Search products..."
+                   className="w-full pr-10"
+                   value={searchTerm}
+                   onChange={(e) => setSearchTerm(e.target.value)}
+                   ref={searchInputRef}
+                 />
+                 <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                   <Search className="h-4 w-4 text-muted-foreground" />
+                   <span className="sr-only">Search</span>
+                 </Button>
+               </form>
+             </PopoverTrigger>
+             <PopoverContent className="w-[calc(100vw-32px)] p-0 outline-none" align="start" side="bottom">
+               <Command>
+                 <CommandInput placeholder="Search products..." value={searchTerm} onValueChange={setSearchTerm} />
+                 <CommandList>
+                   <CommandEmpty>
+                     {isLoading ? (
+                       <div className="py-6 flex items-center justify-center">
+                         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
+                       </div>
+                     ) : "No results found."}
+                   </CommandEmpty>
+                   {suggestions.length > 0 && (
+                     <CommandGroup heading="Suggestions">
+                       {suggestions.map((suggestion) => (
+                         <CommandItem key={suggestion.id} onSelect={() => handleSuggestionClick(suggestion)}>
+                           {suggestion.label}
+                         </CommandItem>
+                       ))}
+                     </CommandGroup>
+                   )}
+                 </CommandList>
+               </Command>
+             </PopoverContent>
+           </Popover>
          </div>
     </header>
   );
 }
+
