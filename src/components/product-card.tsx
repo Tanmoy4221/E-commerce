@@ -44,7 +44,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
            {product.stockStatus === 'Out of Stock' && (
              <Badge variant="secondary">Sold Out</Badge>
            )}
-           {product.isFeatured && !product.isOnSale && ( // Only show if not already on sale
+           {/* Corrected Logic: Only show Featured if NOT on sale */}
+           {product.isFeatured && !product.isOnSale && (
              <Badge variant="default">Featured</Badge>
            )}
         </div>
@@ -93,6 +94,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             size="default" // Or "sm" if preferred
             variant="outline"
             className="w-full transition-default hover:bg-primary hover:text-primary-foreground"
+            disabled={product.stockStatus === 'Out of Stock'} // Disable if out of stock
          />
       </CardFooter>
     </Card>
