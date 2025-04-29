@@ -1,3 +1,4 @@
+
 import type { StaticImageData } from 'next/image';
 
 export interface Product {
@@ -27,6 +28,7 @@ export interface Category {
   name: string;
   slug: string;
   imageUrl: string;
+  title: string; // Added title property
 }
 
 export interface Review {
@@ -39,12 +41,12 @@ export interface Review {
 }
 
 export const categories: Category[] = [
-  { id: 'cat1', name: 'Electronics', slug: 'electronics', imageUrl: 'https://picsum.photos/seed/electronics/300/200' },
-  { id: 'cat2', name: 'Fashion', slug: 'fashion', imageUrl: 'https://picsum.photos/seed/fashion/300/200' },
-  { id: 'cat3', name: 'Home Goods', slug: 'home-goods', imageUrl: 'https://picsum.photos/seed/home/300/200' },
-  { id: 'cat4', name: 'Sports', slug: 'sports', imageUrl: 'https://picsum.photos/seed/sports/300/200' },
-  { id: 'cat5', name: 'Books', slug: 'books', imageUrl: 'https://picsum.photos/seed/books/300/200' },
-  { id: 'cat6', name: 'Beauty', slug: 'beauty', imageUrl: 'https://picsum.photos/seed/beauty/300/200' },
+  { id: 'cat1', name: 'Electronics', title: 'Electronics', slug: 'electronics', imageUrl: 'https://picsum.photos/seed/electronics/300/200' },
+  { id: 'cat2', name: 'Fashion', title: 'Fashion', slug: 'fashion', imageUrl: 'https://picsum.photos/seed/fashion/300/200' },
+  { id: 'cat3', name: 'Home Goods', title: 'Home Goods', slug: 'home-goods', imageUrl: 'https://picsum.photos/seed/home/300/200' },
+  { id: 'cat4', name: 'Sports', title: 'Sports', slug: 'sports', imageUrl: 'https://picsum.photos/seed/sports/300/200' },
+  { id: 'cat5', name: 'Books', title: 'Books', slug: 'books', imageUrl: 'https://picsum.photos/seed/books/300/200' },
+  { id: 'cat6', name: 'Beauty', title: 'Beauty', slug: 'beauty', imageUrl: 'https://picsum.photos/seed/beauty/300/200' },
 ];
 
 export const products: Product[] = [
@@ -367,7 +369,9 @@ export const getRelatedProducts = (currentProduct: Product): Product[] => {
 
 // Helper function to get featured products
 export const getFeaturedProducts = (): Product[] => {
-  return products.filter(p => p.isFeatured).slice(0, 8); // Limit to 8 featured products
+  // Return the first 5 products marked as featured, or fewer if not enough are featured
+  const featured = products.filter(p => p.isFeatured);
+  return featured.slice(0, 5); // Ensure we only return max 5
 };
 
 // Helper function to get flash sale products
