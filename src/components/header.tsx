@@ -20,7 +20,7 @@ import { useCart } from '@/context/cart-context'; // Import useCart
 import { useWishlist } from '@/context/wishlist-context'; // Import useWishlist
 import { useAuth } from '@/context/auth-context'; // Import useAuth
 import { Badge } from '@/components/ui/badge'; // Import Badge
-// import { useTheme } from "next-themes"; // Add next-themes if needed for dark mode
+import { useTheme } from "next-themes"; // Add next-themes
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -28,7 +28,7 @@ export function Header() {
   const { cartCount } = useCart(); // Get cart count
   const { wishlistCount } = useWishlist(); // Get wishlist count
   const { isLoggedIn, user, logout } = useAuth(); // Get auth state and functions
-  // const { theme, setTheme } = useTheme(); // Uncomment for dark mode
+  const { theme, setTheme } = useTheme(); // Use theme hook
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,8 +118,8 @@ export function Header() {
 
         {/* Icons */}
         <div className="flex items-center space-x-1 md:space-x-2">
-          {/* Dark Mode Toggle - Uncomment if using next-themes */}
-          {/*
+          {/* Dark Mode Toggle */}
+
           <Button
             variant="ghost"
             size="icon"
@@ -129,7 +129,7 @@ export function Header() {
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-          */}
+
 
           <Button asChild variant="ghost" size="icon" aria-label="Wishlist" className="relative">
             <Link href="/wishlist">

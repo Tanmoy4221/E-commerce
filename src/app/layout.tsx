@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from '@/context/cart-context';
 import { WishlistProvider } from '@/context/wishlist-context';
 import { AuthProvider } from '@/context/auth-context'; // Import AuthProvider
+import { ThemeProvider } from "@/context/theme-provider"; // Import ThemeProvider
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' }); // Define font variable
 
@@ -22,14 +23,21 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       {/* Apply the font variable */}
       <body className={`${inter.variable} font-sans antialiased flex flex-col min-h-screen`}>
-         <AuthProvider> {/* Wrap with AuthProvider */}
-           <WishlistProvider>
-            <CartProvider>
-                {children}
-              <Toaster />
-            </CartProvider>
-           </WishlistProvider>
-         </AuthProvider>
+         <ThemeProvider
+           attribute="class"
+           defaultTheme="system"
+           enableSystem
+           disableTransitionOnChange
+         >
+           <AuthProvider> {/* Wrap with AuthProvider */}
+             <WishlistProvider>
+              <CartProvider>
+                  {children}
+                <Toaster />
+              </CartProvider>
+             </WishlistProvider>
+           </AuthProvider>
+         </ThemeProvider>
       </body>
     </html>
   );
