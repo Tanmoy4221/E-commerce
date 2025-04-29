@@ -20,7 +20,8 @@ import { WishlistButton } from '@/components/wishlist-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProductReviews } from '@/components/product-reviews'; // Import ProductReviews component
 import { productSuggestionsFlow } from '@/ai/flows/product-suggestions-flow'; // Import the AI flow
-import { motion } from 'framer-motion';
+// Remove framer-motion import for server component usage
+// import { motion } from 'framer-motion';
 
 
 interface ProductPageProps {
@@ -279,13 +280,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </section>
         )}
 
-        {/* AI Product Suggestions */}
+        {/* AI Product Suggestions - Remove framer-motion wrapper */}
         {aiSuggestedProducts.length > 0 && (
-            <motion.section
+            <section
                 className="mt-16 md:mt-20"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
+                // initial={{ opacity: 0, y: 20 }} // Remove motion props
+                // animate={{ opacity: 1, y: 0 }}
+                // transition={{ duration: 0.5, delay: 0.8 }}
             >
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <BrainCircuit className="w-6 h-6 text-primary" />
@@ -313,7 +314,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                          </>
                      )}
                 </Carousel>
-            </motion.section>
+            </section>
         )}
 
       </main>

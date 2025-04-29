@@ -11,6 +11,7 @@
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
 import { products } from '@/lib/data'; // Import the mock product data
+import type { Product } from '@/lib/data'; // Import Product type
 
 // --- Input Schema ---
 const ProductSuggestionsInputSchema = z.object({
@@ -102,7 +103,8 @@ const suggestProductsFlow = ai.defineFlow<
     async (input) => {
         // console.log("AI Flow Input:", input); // Debugging log
         const llmResponse = await prompt(input);
-        const output = llmResponse.output();
+        // Access the 'output' property directly
+        const output = llmResponse.output;
         // console.log("AI Flow Output:", output); // Debugging log
 
         if (!output) {
@@ -119,6 +121,11 @@ const suggestProductsFlow = ai.defineFlow<
             console.warn("AI flow suggested invalid slugs:", output.suggestedProductSlugs.filter(slug => !validSlugs.includes(slug)));
         }
 
-        return { suggestedProductSlugs: validSlugs };
+        // Filter out the current product slug if it was suggested
+        const currentProductSlug = products.find(p => p.name === input.productName)?.slug;
+        const finalSlugs = validSlugs.filter(slug => slug !== currentProductSlug);
+
+
+        return { suggestedProductSlugs: finalSlugs };
     }
 );
