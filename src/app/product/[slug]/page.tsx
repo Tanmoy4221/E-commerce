@@ -1,7 +1,7 @@
 
 'use client'; // Changed to client component for state management
 
-import { useState, useEffect, useCallback } from 'react'; // Import useState, useEffect, useCallback
+import React, { useState, useEffect, useCallback } from 'react'; // Import React, useState, useEffect, useCallback
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,14 +25,15 @@ import { QuantitySelector } from '@/components/quantity-selector'; // Import Qua
 import { Skeleton } from '@/components/ui/skeleton'; // Import Skeleton for loading state
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{ // Params is a Promise
     slug: string;
-  };
+  }>;
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
-  // Extract slug directly outside useEffect
-  const slug = params.slug;
+  // Use React.use() to resolve the params promise
+  const resolvedParams = React.use(params);
+  const slug = resolvedParams.slug;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
