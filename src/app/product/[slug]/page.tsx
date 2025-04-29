@@ -1,8 +1,11 @@
 
+'use server'; // Required for invoking server actions/flows
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Star, CheckCircle, Truck, RotateCw } from 'lucide-react';
-import { getProductBySlug, getRelatedProducts, getReviewsForProduct, Product, Review } from '@/lib/data';
+import Link from 'next/link'; // Ensure Link is imported
+import { Star, CheckCircle, Truck, RotateCw, BrainCircuit } from 'lucide-react'; // Added BrainCircuit
+import { getProductBySlug, getRelatedProducts, getReviewsForProduct, Product, Review, products as allProducts } from '@/lib/data'; // Added allProducts
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -13,15 +16,42 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ProductCard } from '@/components/product-card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ProductImageGallery } from '@/components/product-image-gallery';
-import { AddToCartButton } from '@/components/add-to-cart-button'; // Import AddToCartButton
-import { WishlistButton } from '@/components/wishlist-button'; // Import WishlistButton
+import { AddToCartButton } from '@/components/add-to-cart-button';
+import { WishlistButton } from '@/components/wishlist-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProductReviews } from '@/components/product-reviews'; // Import ProductReviews component
+import { productSuggestionsFlow } from '@/ai/flows/product-suggestions-flow'; // Import the AI flow
 
 interface ProductPageProps {
   params: {
     slug: string;
   };
 }
+
+// Function to safely get AI suggestions
+async function getAiSuggestions(currentProduct: Product): Promise<Product[]> {
+    try {
+        const suggestionsResult = await productSuggestionsFlow({
+            productName: currentProduct.name,
+            productDescription: currentProduct.description,
+            category: currentProduct.category,
+            brand: currentProduct.brand,
+            price: currentProduct.price,
+            limit: 4 // Request 4 suggestions
+        });
+
+        // Map suggested slugs back to full product objects
+        const suggestedProducts = suggestionsResult.suggestedProductSlugs
+            .map(slug => allProducts.find(p => p.slug === slug))
+            .filter((p): p is Product => p !== undefined && p.id !== currentProduct.id); // Filter out undefined and the current product
+
+        return suggestedProducts;
+    } catch (error) {
+        console.error("Error fetching AI product suggestions:", error);
+        return []; // Return empty array on error
+    }
+}
+
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const product = getProductBySlug(params.slug);
@@ -32,6 +62,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const relatedProducts = getRelatedProducts(product);
   const reviews = getReviewsForProduct(product.id);
+  const aiSuggestedProducts = await getAiSuggestions(product); // Fetch AI suggestions
 
   const displayPrice = product.isOnSale ? product.price : product.price;
   const originalPrice = product.isOnSale ? product.originalPrice : null;
@@ -163,8 +194,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                    <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
                  </TabsList>
                  <TabsContent value="description" className="prose max-w-none dark:prose-invert prose-sm pt-4">
-                    {/* Use dangerouslySetInnerHTML ONLY IF product.description is guaranteed to be safe HTML or plain text */}
-                    {/* For safety, treat as plain text by default */}
+                    {/* Treat description as plain text */}
                    <p>{product.description}</p>
                     {/* Add more detailed description, specs etc. */}
                  </TabsContent>
@@ -231,7 +261,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
              <Carousel
                 opts={{
                   align: "start",
-                  loop: false, // Loop can be jerky with few items, disable if < slidesPerView * 2
+                  loop: false,
                 }}
                  className="w-full -ml-1" // Offset margin for container padding
               >
@@ -247,52 +277,41 @@ export default async function ProductPage({ params }: ProductPageProps) {
              </Carousel>
           </section>
         )}
+
+        {/* AI Product Suggestions */}
+        {aiSuggestedProducts.length > 0 && (
+            <section className="mt-16 md:mt-20">
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <BrainCircuit className="w-6 h-6 text-primary" />
+                    AI Recommendations
+                </h2>
+                <Carousel
+                    opts={{
+                        align: "start",
+                        loop: false,
+                    }}
+                    className="w-full -ml-1" // Offset margin for container padding
+                >
+                    <CarouselContent className="-ml-4">
+                        {aiSuggestedProducts.map((suggestedProduct) => (
+                            <CarouselItem key={suggestedProduct.id} className="pl-4 basis-1/2 sm:basis-1/3 lg:basis-1/4">
+                                <ProductCard product={suggestedProduct} />
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                     {/* Only show nav buttons if more items than fit */}
+                     {aiSuggestedProducts.length > 4 && (
+                         <>
+                             <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex" />
+                             <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex" />
+                         </>
+                     )}
+                </Carousel>
+            </section>
+        )}
+
       </main>
       <Footer />
     </>
   );
-}
-
-
-// --- Sub Components ---
-
-// Component to display reviews (can be moved to its own file)
-function ProductReviews({ reviews, productId }: { reviews: Review[], productId: string }) {
-    // TODO: Add Review Form State & Submission Logic
-    if (reviews.length === 0) {
-        return (
-            <div className="py-4 text-center border-t mt-4 pt-6">
-                <p className="text-muted-foreground mb-4">No reviews yet. Be the first to share your thoughts!</p>
-                 <Button disabled>Write a Review (Coming Soon)</Button>
-            </div>
-        );
-    }
-    return (
-        <div className="space-y-6 pt-4 border-t mt-4">
-            <h3 className="text-lg font-semibold">Customer Reviews</h3>
-            {reviews.map((review) => (
-                <div key={review.id} className="border-b pb-4 last:border-b-0">
-                    <div className="flex items-center justify-between mb-1">
-                       <div className="flex items-center gap-2">
-                           <span className="font-semibold">{review.userName}</span>
-                            <div className="flex items-center gap-0.5 text-amber-500">
-                                {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'fill-muted stroke-muted-foreground'}`} />
-                                ))}
-                           </div>
-                       </div>
-                        <span className="text-xs text-muted-foreground">{review.date.toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-sm text-foreground">{review.comment}</p>
-                </div>
-            ))}
-             {/* TODO: Add Review Form Here */}
-             <div className="pt-6">
-                <h4 className="font-semibold mb-2">Write Your Review</h4>
-                {/* Placeholder for form fields */}
-                 <p className="text-sm text-muted-foreground mb-4">Share your experience with this product.</p>
-                 <Button disabled>Submit Review (Coming Soon)</Button>
-             </div>
-        </div>
-    );
 }
