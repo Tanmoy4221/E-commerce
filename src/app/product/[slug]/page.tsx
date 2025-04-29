@@ -31,6 +31,9 @@ interface ProductPageProps {
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
+  // Extract slug directly outside useEffect
+  const slug = params.slug;
+
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -44,8 +47,10 @@ export default function ProductPage({ params }: ProductPageProps) {
   // Fetch product data
   useEffect(() => {
     const loadData = async () => {
+      if (!slug) return; // Add guard if slug might be undefined initially
       setIsLoading(true);
-      const fetchedProduct = getProductBySlug(params.slug); // Simulate async fetch if needed
+      // Use the extracted slug variable
+      const fetchedProduct = getProductBySlug(slug); // Simulate async fetch if needed
 
       if (!fetchedProduct) {
         // Handle not found in client component
@@ -64,7 +69,8 @@ export default function ProductPage({ params }: ProductPageProps) {
       setIsLoading(false);
     };
     loadData();
-  }, [params.slug]);
+    // Use the extracted slug variable in the dependency array
+  }, [slug]);
 
    // Fetch AI suggestions after product data is loaded
    useEffect(() => {
